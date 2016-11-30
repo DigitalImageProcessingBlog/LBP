@@ -4,6 +4,7 @@
 #include <fstream>
 #include <time.h>
 #include <Windows.h>
+#include <iomanip>
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -104,7 +105,9 @@ void convert59(Mat &image, Mat &result, uchar *table)
 			//cout << temp << " ";
 			temp = table[image.at<uchar>(y, x)];
 			result.at<uchar>(y, x) = table[image.at<uchar>(y, x)];   //  降为59维空间  
+			cout << setw(3) << (int)table[image.at<uchar>(y, x)] << " ";
 		}
+		cout << endl;
 	}
 }
 void uniformLBP(Mat &image, Mat &result)
@@ -116,23 +119,25 @@ void uniformLBP(Mat &image, Mat &result)
 		for (int x = 0; x < width; x++)
 		{
 			uchar neighbor[8] = { 0 };
-			neighbor[0] = image.at<uchar>(mid(y - 1,0,height-1), mid(x - 1, 0, width - 1));
-			neighbor[1] = image.at<uchar>(mid(y - 1, 0, height - 1), mid(x, 0, width - 1));
-			neighbor[2] = image.at<uchar>(mid(y - 1, 0, height - 1), mid(x + 1, 0, width - 1));
+			neighbor[0] = image.at<uchar>(mid(y + 1, 0, height - 1), mid(x + 1, 0, width - 1));
+			neighbor[1] = image.at<uchar>(mid(y + 1, 0, height - 1), mid(x, 0, width - 1));
+			neighbor[2] = image.at<uchar>(mid(y + 1, 0, height - 1), mid(x - 1, 0, width - 1));
 			neighbor[3] = image.at<uchar>(mid(y, 0, height - 1), mid(x + 1, 0, width - 1));
-			neighbor[4] = image.at<uchar>(mid(y + 1, 0, height - 1), mid(x + 1, 0, width - 1));
-			neighbor[5] = image.at<uchar>(mid(y + 1, 0, height - 1), mid(x, 0, width - 1));
-			neighbor[6] = image.at<uchar>(mid(y + 1, 0, height - 1), mid(x - 1, 0, width - 1));
-			neighbor[7] = image.at<uchar>(mid(y, 0, height - 1), mid(x - 1, 0, width - 1));
+			neighbor[4] = image.at<uchar>(mid(y, 0, height - 1), mid(x - 1, 0, width - 1));
+			neighbor[5] = image.at<uchar>(mid(y - 1, 0, height - 1), mid(x + 1, 0, width - 1));
+			neighbor[6] = image.at<uchar>(mid(y - 1, 0, height - 1), mid(x, 0, width - 1));
+			neighbor[7] = image.at<uchar>(mid(y - 1, 0, height - 1), mid(x - 1, 0, width - 1));
 			uchar center = image.at<uchar>(mid(y, 0, height - 1), mid(x, 0, width - 1));
 			uchar temp = 0;
 			for (int k = 0; k < 8; k++)
 			{
 				temp += (neighbor[k] >= center)* (1 << k);  // 计算LBP的值  
 			}
+			//cout << setw(3) << (int)temp << " ";
 			result.at<uchar>(y, x) = temp;   
 			
 		}
+		//cout << endl;
 	}
 }
 
@@ -144,11 +149,13 @@ int main()
 	stringstream tempPath;
 	lbpData = new uchar[5900];
 	Mat image = imread("E:\\taonvlang\\img\\face\\10010\\3.png", 0);
+	//Mat image;
 	if (!image.data)
 	{
 		cout << "Fail to load image" << endl;
 		return 0;
 	}
+	//resize(OM, image, Size(10, 10));
 	Mat result,result59;
 	result.create(Size(image.cols, image.rows), image.type());
 	result59.create(Size(image.cols, image.rows), image.type());
